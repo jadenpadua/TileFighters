@@ -1,6 +1,7 @@
 # Imports and Declarations
 import pygame as pg
 import sys
+from os import path
 from settings import *
 from sprites import *
 # Game class that initializes game mode
@@ -13,19 +14,32 @@ class Game:
         self.clock = pg.time.Clock()
         pg.key.set_repeat(500, 100)
         self.load_data()
-    # TODO 
+    # Load out map.txt file and interperet it to game grid and walls
     def load_data(self):
-        pass
+        game_folder = path.dirname(__file__)
+        self.map_data = []
+        with open(path.join(game_folder, 'map.txt'), 'rt') as f:
+            # Parses through our map.txt, appending each line in file, each line a string containing 32 char
+            for line in f:
+                self.map_data.append(line)
 
     def new(self):
         # initialize all variables and do all the setup for a new game
         self.all_sprites = pg.sprite.Group()
         self.walls = pg.sprite.Group()
-        self.player = Player(self, 10, 10)
-        #Creates a wall object
-        for x in range(10, 20):
-            Wall(self, x, 5)
+        
+        # Now loop through  map data list, enumerates the rows to the lines in the map.txt file
+        for row, tiles in enumerate(self.map_data):
+            # Now we do another numerate on the row string
+            for col, tile in enumerate(tiles):
+                #Parses data and spawns wall if equal to 1
+                if tile == '1':
+                    Wall(self, col, row)
+                # Sets Player spawn point
+                if tile == 'P':
+                    self.player = Player(self,col,row)
 
+                
     def run(self):
         # game loop - set self.playing = False to end the game
         self.playing = True
